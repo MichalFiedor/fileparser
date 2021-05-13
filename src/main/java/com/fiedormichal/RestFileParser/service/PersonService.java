@@ -1,12 +1,13 @@
 package com.fiedormichal.RestFileParser.service;
 
 import com.fiedormichal.RestFileParser.dateParser.LocalDateParser;
+import com.fiedormichal.RestFileParser.model.FileMetadata;
 import com.fiedormichal.RestFileParser.model.Person;
-import com.fiedormichal.RestFileParser.model.TextFile;
 import com.fiedormichal.RestFileParser.repository.PersonRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -14,15 +15,16 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 public class PersonService {
-    private final FileService fileToReadService;
+    private final FileService fileService;
     private final PersonRepository personRepository;
 
     @Value("${spring.jpa.properties.hibernate.jdbc.batch_size}")
     private int batchSize;
 
-    public void batchPeople(TextFile fileToRead) throws IOException {
-        List<String[]> peopleDataFromFile = fileToReadService.readFile(fileToRead);
+    public int saveDataOfEachPerson(String fileUrl) throws IOException {
+        List<String[]> peopleDataFromFile = fileService.readFile(fileUrl);
         List<Person> peopleToSave = new ArrayList<>();
+        int numberOfRows = peopleDataFromFile.size();
 
         for (int i = 0; i < peopleDataFromFile.size(); i++) {
             String[] singlePersonData = peopleDataFromFile.get(i);
@@ -36,6 +38,7 @@ public class PersonService {
             personRepository.saveAll(peopleToSave);
             peopleToSave.clear();
         }
+        return numberOfRows;
     }
 
     private Person createPerson(String[] personData) {
