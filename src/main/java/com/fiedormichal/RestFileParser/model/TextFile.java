@@ -5,6 +5,6 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class FileToRead {
+public class TextFile {
     private String url;
 }
