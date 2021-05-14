@@ -1,48 +1,51 @@
 package com.fiedormichal.RestFileParser.service;
 
-import com.fiedormichal.RestFileParser.dateParser.LocalDateParser;
+import com.fiedormichal.RestFileParser.model.Chiropractor;
 import com.fiedormichal.RestFileParser.model.FileMetadata;
-import com.fiedormichal.RestFileParser.model.Person;
-import com.fiedormichal.RestFileParser.repository.PersonRepository;
+import com.fiedormichal.RestFileParser.parser.LocalDateParser;
+import com.fiedormichal.RestFileParser.repository.ChiropractorRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
 @Service
 @RequiredArgsConstructor
-public class PersonService {
+@Log4j2
+public class ChiropractorService {
     private final FileService fileService;
-    private final PersonRepository personRepository;
+    private final ChiropractorRepository chiropractorRepository;
 
     @Value("${spring.jpa.properties.hibernate.jdbc.batch_size}")
     private int batchSize;
 
-    public int saveDataOfEachPerson(String fileUrl) throws IOException {
-        List<String[]> peopleDataFromFile = fileService.readFile(fileUrl);
-        List<Person> peopleToSave = new ArrayList<>();
+    public int saveDataOfEachChiropractor(MultipartFile file, FileMetadata fileMetadata) throws Exception {
+        List<String[]> peopleDataFromFile = fileService.readFile(file);
+        List<Chiropractor> peopleToSave = new ArrayList<>();
         int numberOfRows = peopleDataFromFile.size();
 
         for (int i = 0; i < peopleDataFromFile.size(); i++) {
             String[] singlePersonData = peopleDataFromFile.get(i);
-            peopleToSave.add(createPerson(singlePersonData));
+            peopleToSave.add(createChiropractor(singlePersonData, fileMetadata));
             if (i % batchSize == 0 && i > 0) {
-                personRepository.saveAll(peopleToSave);
+                chiropractorRepository.saveAll(peopleToSave);
                 peopleToSave.clear();
             }
         }
         if (peopleToSave.size() > 0) {
-            personRepository.saveAll(peopleToSave);
+            chiropractorRepository.saveAll(peopleToSave);
             peopleToSave.clear();
         }
+        log.info("Records(" + numberOfRows + ") have been saved.");
         return numberOfRows;
     }
 
-    private Person createPerson(String[] personData) {
-        return Person.builder()
+    private Chiropractor createChiropractor(String[] personData, FileMetadata fileMetadata) {
+        return Chiropractor.builder()
                 .licenseNumber(personData[0])
                 .lastName(personData[1])
                 .firstName(personData[2])
@@ -53,6 +56,7 @@ public class PersonService {
                 .issueDate(LocalDateParser.parse(personData[7]))
                 .expirationDate(LocalDateParser.parse(personData[7]))
                 .boardAction(personData[9])
+                .fileMetadata(fileMetadata)
                 .build();
     }
 }

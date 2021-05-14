@@ -5,7 +5,6 @@ import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.annotations.*;
 import org.hibernate.annotations.Parameter;
-
 import javax.persistence.*;
 import javax.persistence.Entity;
 import java.time.LocalDate;
@@ -14,7 +13,7 @@ import java.time.LocalDate;
 @Getter
 @Setter
 @Builder
-public class Person {
+public class Chiropractor {
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "hilo_sequence_generator")
     @GenericGenerator(
@@ -37,4 +36,7 @@ public class Person {
     private LocalDate issueDate;
     private LocalDate expirationDate;
     private String boardAction;
+    @ManyToOne
+    @JoinColumn(name="file_id")
+    private FileMetadata fileMetadata;
 }
