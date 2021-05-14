@@ -17,6 +17,6 @@ public class FileMetadata {
     private Integer id;
     private String url;
     private String fileName;
-    private int numRows;
+    private Integer numRows;
     private String createdAt;
 }

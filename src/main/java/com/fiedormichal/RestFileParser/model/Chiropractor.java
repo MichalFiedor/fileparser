@@ -14,7 +14,7 @@ import java.time.LocalDate;
 @Getter
 @Setter
 @Builder
-public class Person {
+public class Chiropractor {
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "hilo_sequence_generator")
     @GenericGenerator(
