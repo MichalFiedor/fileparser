@@ -6,6 +6,7 @@ import com.fiedormichal.RestFileParser.repository.ChiropractorRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -20,8 +21,8 @@ public class ChiropractorService {
     @Value("${spring.jpa.properties.hibernate.jdbc.batch_size}")
     private int batchSize;
 
-    public int saveDataOfEachChiropractor(String fileUrl) throws IOException {
-        List<String[]> peopleDataFromFile = fileService.readFile(fileUrl);
+    public int saveDataOfEachChiropractor(MultipartFile file) throws IOException {
+        List<String[]> peopleDataFromFile = fileService.readFile(file);
         List<Chiropractor> peopleToSave = new ArrayList<>();
         int numberOfRows = peopleDataFromFile.size();
 

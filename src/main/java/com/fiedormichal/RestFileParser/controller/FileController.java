@@ -2,13 +2,16 @@ package com.fiedormichal.RestFileParser.controller;
 
 import com.fiedormichal.RestFileParser.csvWriter.FileMetaDataWriter;
 import com.fiedormichal.RestFileParser.dto.FileMetaDataDtoMapper;
+import com.fiedormichal.RestFileParser.exception.WrongFormatException;
 import com.fiedormichal.RestFileParser.model.FileMetadata;
+import com.fiedormichal.RestFileParser.service.ChiropractorService;
 import com.fiedormichal.RestFileParser.service.FileMetadataService;
 import com.fiedormichal.RestFileParser.service.FileService;
-import com.fiedormichal.RestFileParser.service.ChiropractorService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
@@ -34,14 +37,16 @@ public class FileController {
     @GetMapping("/files/{id}/download")
     public void downloadFileMetaData(@PathVariable int id, HttpServletResponse response) throws IOException {
         fileMetaDataWriter.prepareResponse(response, id);
-        fileMetadataService.downloadFileMetaDataAsCSVFile(id,response);
+        fileMetadataService.downloadFileMetaDataAsCSVFile(id, response);
     }
 
     @PostMapping("/files")
-    public ResponseEntity<Object> saveData(@RequestBody FileMetadata file) throws IOException {
-        Integer numRows = chiropractorService.saveDataOfEachChiropractor(file.getUrl());
-        file.setNumRows(numRows);
-        FileMetadata fileMetadata = fileMetadataService.save(file);
+    public ResponseEntity<Object> saveData(@RequestParam("file") MultipartFile file) throws IOException {
+        if (!FileService.isTextFile.test(file)) {
+            throw new WrongFormatException("File has wrong format.");
+        }
+        Integer numRows = chiropractorService.saveDataOfEachChiropractor(file);
+        FileMetadata fileMetadata = fileMetadataService.save(file, numRows);
         return ResponseEntity.ok().body(fileMetadata);
     }
 }
