@@ -2,13 +2,15 @@ package com.fiedormichal.RestFileParser.controller;
 
 import com.fiedormichal.RestFileParser.csvWriter.FileMetaDataWriter;
 import com.fiedormichal.RestFileParser.dto.FileMetaDataDtoMapper;
+import com.fiedormichal.RestFileParser.exception.FileMetaDataNotFoundException;
 import com.fiedormichal.RestFileParser.exception.WrongFormatException;
 import com.fiedormichal.RestFileParser.model.FileMetadata;
 import com.fiedormichal.RestFileParser.service.ChiropractorService;
 import com.fiedormichal.RestFileParser.service.FileMetadataService;
 import com.fiedormichal.RestFileParser.service.FileService;
+import jdk.jfr.ContentType;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
+import lombok.extern.log4j.Log4j2;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -16,8 +18,11 @@ import org.springframework.web.multipart.MultipartFile;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
+import static com.fiedormichal.RestFileParser.ApiError.ApiErrorMsg.WRONG_FORMAT;
+
 @RestController
 @RequiredArgsConstructor
+@Log4j2
 public class FileController {
     private final FileService fileService;
     private final ChiropractorService chiropractorService;
@@ -30,23 +35,27 @@ public class FileController {
     }
 
     @GetMapping("/files/{id}")
-    public ResponseEntity<Object> getFiles(@PathVariable int id) {
+    public ResponseEntity<Object> getFile(@PathVariable int id) {
         return ResponseEntity.ok().body(fileMetadataService.findById(id));
     }
 
     @GetMapping("/files/{id}/download")
-    public void downloadFileMetaData(@PathVariable int id, HttpServletResponse response) throws IOException {
+    public void downloadFileMetadata(@PathVariable int id, HttpServletResponse response)   {
         fileMetaDataWriter.prepareResponse(response, id);
-        fileMetadataService.downloadFileMetaDataAsCSVFile(id, response);
+        fileMetadataService.downloadFileMetadataAsCSVFile(id, response);
     }
 
-    @PostMapping("/files")
-    public ResponseEntity<Object> saveData(@RequestParam("file") MultipartFile file) throws IOException {
+    @PostMapping(value = "/files")
+    public ResponseEntity<Object> saveData(@RequestParam("file") MultipartFile file) throws Exception {
         if (!FileService.isTextFile.test(file)) {
-            throw new WrongFormatException("File has wrong format.");
+            log.debug(WRONG_FORMAT.getValue());
+            throw new WrongFormatException("File has wrong format. Only .txt files are allowed.");
         }
-        Integer numRows = chiropractorService.saveDataOfEachChiropractor(file);
-        FileMetadata fileMetadata = fileMetadataService.save(file, numRows);
+        FileMetadata fileMetadata = fileMetadataService.getFileMetaData(file);
+        fileMetadataService.save(fileMetadata);
+        Integer numRows = chiropractorService.saveDataOfEachChiropractor(file, fileMetadata);
+        fileMetadata.setNumRows(numRows);
+        fileMetadataService.save(fileMetadata);
         return ResponseEntity.ok().body(fileMetadata);
     }
 }

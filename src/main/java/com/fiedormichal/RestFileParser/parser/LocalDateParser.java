@@ -1,4 +1,4 @@
-package com.fiedormichal.RestFileParser.dateParser;
+package com.fiedormichal.RestFileParser.parser;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;

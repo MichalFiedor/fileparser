@@ -5,43 +5,39 @@ import com.fiedormichal.RestFileParser.exception.FileMetaDataNotFoundException;
 import com.fiedormichal.RestFileParser.model.FileMetadata;
 import com.fiedormichal.RestFileParser.repository.FileMetadataRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDateTime;
 import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
 
 @Service
 @RequiredArgsConstructor
+@Log4j2
 public class FileMetadataService {
     private final FileMetadataRepository fileMetadataRepository;
     private final FileMetaDataWriterCSVWriter fileMetaDataWriter;
 
-    public FileMetadata save(MultipartFile file, int numRows) {
-        return fileMetadataRepository.save(getPreparedCompleteFileMetaData(file, numRows));
+    public FileMetadata save(FileMetadata fileMetadata) {
+        return fileMetadataRepository.save(fileMetadata);
     }
 
-    public FileMetadata findById(int id){
-        return findFileMetaData(id);
-    }
-
-    public void downloadFileMetaDataAsCSVFile(int id, HttpServletResponse response) throws IOException {
-        FileMetadata fileMetadata = findFileMetaData(id);
+    public void downloadFileMetadataAsCSVFile(int id, HttpServletResponse response)  {
+        FileMetadata fileMetadata = findById(id);
         fileMetaDataWriter.printFileMetaDataToCSV(fileMetadata, response);
     }
 
-    private FileMetadata getPreparedCompleteFileMetaData(MultipartFile file, int numRows) {
+    public FileMetadata getFileMetaData(MultipartFile file) {
         FileMetadata fileMetadata = new FileMetadata();
         fileMetadata.setCreatedAt(LocalDateTime.now());
         fileMetadata.setFileName(file.getOriginalFilename());
-        fileMetadata.setNumRows(numRows);
         return fileMetadata;
     }
 
-    private FileMetadata findFileMetaData(int id){
+    public FileMetadata findById(int id) {
         return fileMetadataRepository.findById(id).orElseThrow(
-                ()-> new FileMetaDataNotFoundException("File not found."));
+                ()-> new FileMetaDataNotFoundException("File with id: "+ id +" not found."));
     }
 
 

@@ -5,7 +5,6 @@ import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.annotations.*;
 import org.hibernate.annotations.Parameter;
-
 import javax.persistence.*;
 import javax.persistence.Entity;
 import java.time.LocalDate;
@@ -37,4 +36,7 @@ public class Chiropractor {
     private LocalDate issueDate;
     private LocalDate expirationDate;
     private String boardAction;
+    @ManyToOne
+    @JoinColumn(name="file_id")
+    private FileMetadata fileMetadata;
 }
