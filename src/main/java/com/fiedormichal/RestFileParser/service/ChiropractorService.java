@@ -24,7 +24,7 @@ public class ChiropractorService {
     private int batchSize;
 
     public int saveDataOfEachChiropractor(MultipartFile file, FileMetadata fileMetadata) throws Exception {
-        List<String[]> peopleDataFromFile = fileService.readFile(file);
+        List<String[]> peopleDataFromFile = fileService.readFileLines(file);
         List<Chiropractor> peopleToSave = new ArrayList<>();
         int numberOfRows = peopleDataFromFile.size();
 

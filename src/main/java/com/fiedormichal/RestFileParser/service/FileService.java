@@ -1,5 +1,6 @@
 package com.fiedormichal.RestFileParser.service;
 
+import com.fiedormichal.RestFileParser.exception.IncorrectFileContentException;
 import com.fiedormichal.RestFileParser.model.FileMetadata;
 import com.fiedormichal.RestFileParser.repository.FileMetadataRepository;
 import lombok.RequiredArgsConstructor;
@@ -24,11 +25,14 @@ public class FileService {
     public static final Predicate<MultipartFile> isTextFile =
             file -> !Objects.isNull(file.getContentType()) && file.getContentType().equals("text/plain");
 
-    public List<String[]> readFile(MultipartFile file) throws Exception {
+    public List<String[]> readFileLines(MultipartFile file) throws Exception {
         List<String[]> splitPeopleData;
         try {
             InputStream  inputStream = file.getInputStream();
             BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(inputStream));
+            if(!fileHasCorrectContent(bufferedReader)){
+                throw new IncorrectFileContentException("Incorrect content.");
+            }
             splitPeopleData = bufferedReader.lines().
                     map(line -> line.split("\\|"))
                     .collect(Collectors.toList());
@@ -43,5 +47,12 @@ public class FileService {
 
     public List<FileMetadata> getFiles() {
        return fileRepository.findAll();
+    }
+
+    private boolean fileHasCorrectContent(BufferedReader bufferedReader) throws IOException {
+        return bufferedReader.readLine()
+                .equals("licenseNumber|lastName|firstName" +
+                        "|middleName|city|state|status" +
+                        "|issueDate|expirationDate|boardAction");
     }
 }
