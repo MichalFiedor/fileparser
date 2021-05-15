@@ -1,11 +1,10 @@
 package com.fiedormichal.RestFileParser.exception;
 
 import com.fiedormichal.RestFileParser.ApiError.ApiError;
+import org.springframework.context.annotation.Primary;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.HttpMediaTypeNotSupportedException;
-import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.context.request.WebRequest;
@@ -13,7 +12,6 @@ import org.springframework.web.method.annotation.MethodArgumentTypeMismatchExcep
 import org.springframework.web.servlet.NoHandlerFoundException;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
-import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -21,6 +19,7 @@ import java.util.List;
 import static com.fiedormichal.RestFileParser.ApiError.ApiErrorMsg.*;
 
 @RestControllerAdvice
+@Primary
 public class RestExceptionHandler extends ResponseEntityExceptionHandler {
 
     @Override
@@ -34,6 +33,14 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
         return buildResponseEntity(getApiError(errors, HttpStatus.NOT_FOUND, METHOD_NOT_FOUND.getValue()));
     }
 
+    @ExceptionHandler(IncorrectFileContentException.class)
+    public ResponseEntity<Object> handleIncorrectFileContent(IncorrectFileContentException ex){
+        List<String> errors = new ArrayList<>();
+        errors.add(ex.getMessage());
+
+        return buildResponseEntity(getApiError(errors, HttpStatus.NOT_ACCEPTABLE, INCORRECT_CONTENT.getValue()));
+    }
+
     @ExceptionHandler(WrongFormatException.class)
     public ResponseEntity<Object> handleWrongFormat(WrongFormatException ex){
         List<String> errors = new ArrayList<>();
@@ -42,8 +49,8 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
         return buildResponseEntity(getApiError(errors, HttpStatus.NOT_ACCEPTABLE, WRONG_FORMAT.getValue()));
     }
 
-    @ExceptionHandler(FileMetaDataNotFoundException.class)
-    public ResponseEntity<Object> handleFileMetaDataNotFound(FileMetaDataNotFoundException ex){
+    @ExceptionHandler(FileMetadataNotFoundException.class)
+    public ResponseEntity<Object> handleFileMetaDataNotFound(FileMetadataNotFoundException ex){
         List<String> errors = new ArrayList<>();
         errors.add(ex.getMessage());
 

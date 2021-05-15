@@ -1,7 +1,7 @@
 package com.fiedormichal.RestFileParser.service;
 
 import com.fiedormichal.RestFileParser.csvWriter.FileMetaDataWriterCSVWriter;
-import com.fiedormichal.RestFileParser.exception.FileMetaDataNotFoundException;
+import com.fiedormichal.RestFileParser.exception.FileMetadataNotFoundException;
 import com.fiedormichal.RestFileParser.model.FileMetadata;
 import com.fiedormichal.RestFileParser.repository.FileMetadataRepository;
 import lombok.RequiredArgsConstructor;
@@ -37,10 +37,10 @@ public class FileMetadataService {
 
     public FileMetadata findById(int id) {
         return fileMetadataRepository.findById(id).orElseThrow(
-                ()-> new FileMetaDataNotFoundException("File with id: "+ id +" not found."));
+                ()-> new FileMetadataNotFoundException("File with id: "+ id +" not found."));
     }
 
-
-
-
+    public void delete(FileMetadata fileMetadata){
+        fileMetadataRepository.deleteById(fileMetadata.getId());
+    }
 }

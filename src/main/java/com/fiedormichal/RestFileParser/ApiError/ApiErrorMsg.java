@@ -12,6 +12,7 @@ public enum ApiErrorMsg {
     WRONG_FORMAT("Input file has wrong type."),
     PRINTING_TO_CSV_PROBLEM("Something went wrong with printing file metadata to .CSV file: "),
     READING_FILE_PROBLEM("Something went wrong with reading file: "),
+    INCORRECT_CONTENT("Passed file has incorrect content."),
     ERROR_OCCURRED("Some exceptions occurred. Check errors list.");
 
     private String value;
