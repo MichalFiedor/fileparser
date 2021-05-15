@@ -13,6 +13,7 @@ import org.springframework.web.servlet.NoHandlerFoundException;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
 import java.time.LocalDateTime;
+import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -33,8 +34,16 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
         return buildResponseEntity(getApiError(errors, HttpStatus.NOT_FOUND, METHOD_NOT_FOUND.getValue()));
     }
 
+    @ExceptionHandler(DateTimeParseException.class)
+    public ResponseEntity<Object> handleDateParsing(DateTimeParseException ex) {
+        List<String> errors = new ArrayList<>();
+        errors.add(ex.getMessage() + " " + ex.getParsedString());
+
+        return buildResponseEntity(getApiError(errors, HttpStatus.NOT_ACCEPTABLE, PARSING_PROBLEM.getValue()));
+    }
+
     @ExceptionHandler(IncorrectFileContentException.class)
-    public ResponseEntity<Object> handleIncorrectFileContent(IncorrectFileContentException ex){
+    public ResponseEntity<Object> handleIncorrectFileContent(IncorrectFileContentException ex) {
         List<String> errors = new ArrayList<>();
         errors.add(ex.getMessage());
 
@@ -42,7 +51,7 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
     }
 
     @ExceptionHandler(WrongFormatException.class)
-    public ResponseEntity<Object> handleWrongFormat(WrongFormatException ex){
+    public ResponseEntity<Object> handleWrongFormat(WrongFormatException ex) {
         List<String> errors = new ArrayList<>();
         errors.add(ex.getMessage());
 
@@ -50,7 +59,7 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
     }
 
     @ExceptionHandler(FileMetadataNotFoundException.class)
-    public ResponseEntity<Object> handleFileMetaDataNotFound(FileMetadataNotFoundException ex){
+    public ResponseEntity<Object> handleFileMetaDataNotFound(FileMetadataNotFoundException ex) {
         List<String> errors = new ArrayList<>();
         errors.add(ex.getMessage());
 
@@ -58,7 +67,7 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
     }
 
     @ExceptionHandler(MethodArgumentTypeMismatchException.class)
-    public ResponseEntity<Object> handleMethodArgumentTypeMismatch(MethodArgumentTypeMismatchException ex){
+    public ResponseEntity<Object> handleMethodArgumentTypeMismatch(MethodArgumentTypeMismatchException ex) {
         List<String> errors = new ArrayList<>();
         errors.add(ex.getMessage());
 

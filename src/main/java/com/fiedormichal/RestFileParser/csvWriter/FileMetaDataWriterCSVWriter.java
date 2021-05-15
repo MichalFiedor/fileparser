@@ -8,6 +8,7 @@ import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVPrinter;
 import org.springframework.stereotype.Service;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.List;
 
 import javax.servlet.http.HttpServletResponse;
@@ -26,8 +27,11 @@ public class FileMetaDataWriterCSVWriter implements FileMetaDataWriter{
                     CSVFormat.newFormat('|')
                             .withRecordSeparator("\r\n")
                             .withHeader("Id", "File name", "Number of rows", "Created at"));
-            List data = FileMetadataParser.parseToList(fileMetadata);
-            csvPrinter.printRecord(data);
+            csvPrinter.printRecord(Arrays.asList(
+                    fileMetadata.getId().toString(),
+                    fileMetadata.getFileName(),
+                    fileMetadata.getNumRows().toString(),
+                    fileMetadata.getCreatedAt()));
             csvPrinter.flush();
             log.info("File metadata with id: " + fileMetadata.getId() + " has been printed to .CSV file.");
         } catch (IOException io) {

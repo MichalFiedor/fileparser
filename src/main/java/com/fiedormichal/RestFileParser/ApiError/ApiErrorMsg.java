@@ -13,6 +13,7 @@ public enum ApiErrorMsg {
     PRINTING_TO_CSV_PROBLEM("Something went wrong with printing file metadata to .CSV file: "),
     READING_FILE_PROBLEM("Something went wrong with reading file: "),
     INCORRECT_CONTENT("Passed file has incorrect content."),
+    PARSING_PROBLEM("Something went wrong with date parsing. "),
     ERROR_OCCURRED("Some exceptions occurred. Check errors list.");
 
     private String value;
