@@ -24,7 +24,7 @@ public class ChiropractorService {
     private int batchSize;
 
     public int saveDataOfEachChiropractor(MultipartFile file, FileMetadata fileMetadata) throws Exception {
-        List<String[]> peopleDataFromFile = fileService.readFileLines(file);
+        List<String[]> peopleDataFromFile = fileService.prepareRecordsFromFileToSave(file);
         List<Chiropractor> peopleToSave = new ArrayList<>();
         int numberOfRows = peopleDataFromFile.size();
 
@@ -54,7 +54,7 @@ public class ChiropractorService {
                 .state(personData[5])
                 .status(personData[6])
                 .issueDate(LocalDateParser.parse(personData[7]))
-                .expirationDate(LocalDateParser.parse(personData[7]))
+                .expirationDate(LocalDateParser.parse(personData[8]))
                 .boardAction(personData[9])
                 .fileMetadata(fileMetadata)
                 .build();

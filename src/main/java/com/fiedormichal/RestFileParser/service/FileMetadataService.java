@@ -9,8 +9,9 @@ import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.time.LocalDateTime;
 import javax.servlet.http.HttpServletResponse;
+import java.time.LocalDateTime;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -23,7 +24,11 @@ public class FileMetadataService {
         return fileMetadataRepository.save(fileMetadata);
     }
 
-    public void downloadFileMetadataAsCSVFile(int id, HttpServletResponse response)  {
+    public List<FileMetadata> getFiles() {
+        return fileMetadataRepository.findAll();
+    }
+
+    public void downloadFileMetadataAsCSVFile(int id, HttpServletResponse response) {
         FileMetadata fileMetadata = findById(id);
         fileMetaDataWriter.printFileMetaDataToCSV(fileMetadata, response);
     }
@@ -37,10 +42,6 @@ public class FileMetadataService {
 
     public FileMetadata findById(int id) {
         return fileMetadataRepository.findById(id).orElseThrow(
-                ()-> new FileMetadataNotFoundException("File with id: "+ id +" not found."));
-    }
-
-    public void delete(FileMetadata fileMetadata){
-        fileMetadataRepository.deleteById(fileMetadata.getId());
+                () -> new FileMetadataNotFoundException("File with id: " + id + " not found."));
     }
 }
