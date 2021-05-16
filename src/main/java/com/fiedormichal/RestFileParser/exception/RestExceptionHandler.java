@@ -1,7 +1,7 @@
 package com.fiedormichal.RestFileParser.exception;
 
 import com.fiedormichal.RestFileParser.ApiError.ApiError;
-import org.springframework.context.annotation.Primary;
+import lombok.extern.log4j.Log4j2;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -13,13 +13,14 @@ import org.springframework.web.servlet.NoHandlerFoundException;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
 import java.time.LocalDateTime;
+import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.List;
 
 import static com.fiedormichal.RestFileParser.ApiError.ApiErrorMsg.*;
 
 @RestControllerAdvice
-@Primary
+@Log4j2
 public class RestExceptionHandler extends ResponseEntityExceptionHandler {
 
     @Override
@@ -30,27 +31,29 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
         List<String> errors = new ArrayList<>();
         errors.add(String.format("Could not find the %s method for URL %s",
                 ex.getHttpMethod(), ex.getRequestURL()));
+
         return buildResponseEntity(getApiError(errors, HttpStatus.NOT_FOUND, METHOD_NOT_FOUND.getValue()));
     }
 
-    @ExceptionHandler(IncorrectFileContentException.class)
-    public ResponseEntity<Object> handleIncorrectFileContent(IncorrectFileContentException ex){
+    @ExceptionHandler(DateTimeParseException.class)
+    public ResponseEntity<Object> handleDateParsing(DateTimeParseException ex) {
         List<String> errors = new ArrayList<>();
-        errors.add(ex.getMessage());
+        errors.add(ex.getMessage() + " " + ex.getParsedString());
 
-        return buildResponseEntity(getApiError(errors, HttpStatus.NOT_ACCEPTABLE, INCORRECT_CONTENT.getValue()));
+        return buildResponseEntity(getApiError(errors, HttpStatus.NOT_ACCEPTABLE, PARSING_PROBLEM.getValue()));
     }
 
     @ExceptionHandler(WrongFormatException.class)
-    public ResponseEntity<Object> handleWrongFormat(WrongFormatException ex){
+    public ResponseEntity<Object> handleWrongFormat(WrongFormatException ex) {
         List<String> errors = new ArrayList<>();
         errors.add(ex.getMessage());
+        log.info("Loading file failed due to invalid format.");
 
         return buildResponseEntity(getApiError(errors, HttpStatus.NOT_ACCEPTABLE, WRONG_FORMAT.getValue()));
     }
 
     @ExceptionHandler(FileMetadataNotFoundException.class)
-    public ResponseEntity<Object> handleFileMetaDataNotFound(FileMetadataNotFoundException ex){
+    public ResponseEntity<Object> handleFileMetaDataNotFound(FileMetadataNotFoundException ex) {
         List<String> errors = new ArrayList<>();
         errors.add(ex.getMessage());
 
@@ -58,7 +61,7 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
     }
 
     @ExceptionHandler(MethodArgumentTypeMismatchException.class)
-    public ResponseEntity<Object> handleMethodArgumentTypeMismatch(MethodArgumentTypeMismatchException ex){
+    public ResponseEntity<Object> handleMethodArgumentTypeMismatch(MethodArgumentTypeMismatchException ex) {
         List<String> errors = new ArrayList<>();
         errors.add(ex.getMessage());
 

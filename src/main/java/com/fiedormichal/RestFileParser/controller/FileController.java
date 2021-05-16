@@ -2,8 +2,6 @@ package com.fiedormichal.RestFileParser.controller;
 
 import com.fiedormichal.RestFileParser.csvWriter.FileMetaDataWriter;
 import com.fiedormichal.RestFileParser.dto.FileMetaDataDtoMapper;
-import com.fiedormichal.RestFileParser.exception.IncorrectFileContentException;
-import com.fiedormichal.RestFileParser.exception.RestExceptionHandler;
 import com.fiedormichal.RestFileParser.exception.WrongFormatException;
 import com.fiedormichal.RestFileParser.model.FileMetadata;
 import com.fiedormichal.RestFileParser.service.ChiropractorService;
@@ -23,15 +21,13 @@ import static com.fiedormichal.RestFileParser.ApiError.ApiErrorMsg.WRONG_FORMAT;
 @RequiredArgsConstructor
 @Log4j2
 public class FileController {
-    private final FileService fileService;
     private final ChiropractorService chiropractorService;
     private final FileMetadataService fileMetadataService;
     private final FileMetaDataWriter fileMetaDataWriter;
-    private final RestExceptionHandler restExceptionHandler;
 
     @GetMapping("/files")
     public ResponseEntity<Object> getFiles() {
-        return ResponseEntity.ok().body(FileMetaDataDtoMapper.getFileMetaDataDtos(fileService.getFiles()));
+        return ResponseEntity.ok().body(FileMetaDataDtoMapper.getFileMetaDataDtos(fileMetadataService.getFiles()));
     }
 
     @GetMapping("/files/{id}")
@@ -40,7 +36,7 @@ public class FileController {
     }
 
     @GetMapping("/files/{id}/download")
-    public void downloadFileMetadata(@PathVariable int id, HttpServletResponse response)   {
+    public void downloadFileMetadata(@PathVariable int id, HttpServletResponse response) {
         fileMetaDataWriter.prepareResponse(response, id);
         fileMetadataService.downloadFileMetadataAsCSVFile(id, response);
     }
@@ -52,14 +48,11 @@ public class FileController {
             throw new WrongFormatException("File has wrong format. Only .txt files are allowed.");
         }
         FileMetadata fileMetadata = fileMetadataService.save(fileMetadataService.getFileMetaData(file));
-        try{
-            Integer numRows = chiropractorService.saveDataOfEachChiropractor(file, fileMetadata);
-            fileMetadata.setNumRows(numRows);
-            fileMetadataService.save(fileMetadata);
-        }catch (IncorrectFileContentException ex){
-            fileMetadataService.delete(fileMetadata);
-            return restExceptionHandler.handleIncorrectFileContent(ex);
-        }
+        Integer numRows = chiropractorService.saveDataOfEachChiropractor(file, fileMetadata);
+        fileMetadata.setNumRows(numRows);
+        fileMetadataService.save(fileMetadata);
+        log.info("Reading the file " + file.getOriginalFilename() + " was successful.");
+
         return ResponseEntity.ok().body(fileMetadata);
     }
 }
