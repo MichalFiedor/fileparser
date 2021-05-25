@@ -3,7 +3,7 @@ values ('ROLE_USER');
 
 INSERT INTO users (username, password, enabled)
   values ('user',
-    '$2a$10$fYc7qW1ZbSKfiOH2BX8u0ex93zq2EBbxOYNXLdKFquMk81IAlIWZ2',
+    '$2y$10$dGlkyfKzipeFW9b6x35jGeavb7yfAPB774fJgJE.2c97uzpA1mnk2',
     1);
 
 

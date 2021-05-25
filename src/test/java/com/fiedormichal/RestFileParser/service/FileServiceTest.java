@@ -24,7 +24,7 @@ class FileServiceTest {
     private FileService fileService;
 
     @Test
-    void givenStreamOfText_whenSplitEachRecordOfPersonData_thenReturnListWithSplitData(){
+    void givenStreamOfText_whenSplitEachRecordOfPersonData_thenReturnListWithSplitData() throws IOException {
         //given
         List<String>records = new ArrayList<>();
                 records.add("licenseNumber|lastName|firstName|middleName|city|state|status|issueDate|expirationDate|boardAction");
