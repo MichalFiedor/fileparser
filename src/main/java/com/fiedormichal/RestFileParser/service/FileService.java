@@ -41,10 +41,11 @@ public class FileService {
         return new BufferedReader(new InputStreamReader(inputStream));
     }
 
-    protected List<String[]> splitEachRecordOfPersonData(BufferedReader bufferedReader) {
+    protected List<String[]> splitEachRecordOfPersonData(BufferedReader bufferedReader) throws IOException {
         List<String[]> splitPeopleData = bufferedReader.lines().
                 map(line -> line.split("\\|"))
                 .collect(Collectors.toList());
+        bufferedReader.close();
         splitPeopleData.remove(0);
         return splitPeopleData;
 
